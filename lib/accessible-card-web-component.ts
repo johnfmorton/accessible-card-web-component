@@ -10,18 +10,22 @@ export class AccessibleCard extends HTMLElement {
         console.log('constructor')
         super()
         this.attachShadow({ mode: 'open' })
-        // check that shadowRoot is available
-        if (!this.shadowRoot) {
-            throw new Error('ShadowRoot not available')
-        } else {
-            this.shadowRoot.innerHTML = template
-        }
     }
 
     connectedCallback() {
         console.log('connectedCallback')
         const shadowRoot = this.shadowRoot as ShadowRoot
 
+        const rootElementTag = this.getAttribute('root-element') ?? 'li'
+
+        // const shadow = this.attachShadow({ mode: 'open' })
+        const rootElement = document.createElement(rootElementTag)
+        // add the slot to the root element
+        rootElement.innerHTML = template
+
+        shadowRoot.appendChild(rootElement)
+
+        // check for default slot content using the slotchange event
         shadowRoot.querySelector('slot')?.addEventListener('slotchange', () => {
             console.log('slotchange')
             const slot = shadowRoot.querySelector('slot') as HTMLSlotElement
@@ -44,59 +48,100 @@ export class AccessibleCard extends HTMLElement {
                 console.log('titleTagType', titleTagType)
 
                 const title = document.createElement(titleTagType as string)
-                // insert all the assignedNodes into the title element
-              assignedNodes.forEach((node) => {
 
-                title.appendChild(node)
-              })
+              let titleLink;
+                // check if the cta-url attribute is set
+              if (
+                this.hasAttribute('cta-url') &&
+                this.getAttribute('cta-url') !== null
+              ) {
+                  // create the link element
+                  titleLink = document.createElement('a')
+                  titleLink.setAttribute(
+                      'href',
+                      this.getAttribute('cta-url') as string
+                  )
+                  // insert all the assignedNodes into the title element
+                  assignedNodes.forEach((node) => {
+                      titleLink.appendChild(node)
+                  })
+                  // insert the titleLink into the title element
+                  title.appendChild(titleLink)
+              } else {
+                  // insert all the assignedNodes into the title element
+                  assignedNodes.forEach((node) => {
+                      title.appendChild(node)
+                  })
+              }
+
                 console.log('title element', title)
                 // remove the default slot content
                 slot.innerHTML = ''
                 // add the title to the shadowRoot
                 slot.appendChild(title)
             }
+
+            // createRestOfDOM.call(this, shadowRoot)
         })
 
-        if (
-            this.hasAttribute('img-scr') &&
-            this.getAttribute('img-scr') !== null
-        ) {
-            const img = document.createElement('img')
-            img.setAttribute('src', this.getAttribute('img-scr') as string)
-            // confirm that img-alt is not null
-            if (
-                this.hasAttribute('img-alt') &&
-                this.getAttribute('img-alt') !== null
-            ) {
-                img.setAttribute('alt', this.getAttribute('img-alt') as string)
-            } else {
-                img.setAttribute('alt', 'Support image')
-                // add aria-hidden to img
-                img.setAttribute('aria-hidden', 'true')
-            }
-            // add img to shadowRoot
-            shadowRoot.appendChild(img)
-        }
-
-        // check for title-tag attribute
-
-        if (
-            this.hasAttribute('title-tag') &&
-            this.getAttribute('title-tag') !== null
-        ) {
-            const title = document.createElement(
-                this.getAttribute('title-tag') as string
-            )
-            // get the content from the default slot
-            const titleContent = this.querySelector('[slot="title"]')
-            if (titleContent !== null) {
-                title.innerHTML = titleContent.innerHTML
-            }
-            shadowRoot.appendChild(title)
-        }
+        createRestOfDOM.call(this, shadowRoot)
     }
 
     disconnectedCallback() {
         console.log('disconnectedCallback')
+    }
+}
+
+// function to create rest of DOM
+// element are created in a specific order
+
+function createRestOfDOM(shadowRoot: ShadowRoot) {
+    // check for img-src attribute and create the image
+    if (this.hasAttribute('img-scr') && this.getAttribute('img-scr') !== null) {
+        const img = shadowRoot.querySelector('#card-image') as HTMLImageElement
+        img.setAttribute('src', this.getAttribute('img-scr') as string)
+        // confirm that img-alt is not null
+        if (
+            this.hasAttribute('img-alt') &&
+            this.getAttribute('img-alt') !== null
+        ) {
+            img.setAttribute('alt', this.getAttribute('img-alt') as string)
+        } else {
+            img.setAttribute('alt', 'Support image')
+            // add aria-hidden to img
+            img.setAttribute('aria-hidden', 'true')
+        }
+    } else {
+        // remove the img element parent
+        const img = shadowRoot.querySelector('#card-image') as HTMLImageElement
+        // get parent of img
+        const parent = img.parentElement as HTMLDivElement
+        parent.remove()
+    }
+
+    // check for cta-text attribute and create the cta button if it exists
+    if (
+        this.hasAttribute('cta-text') &&
+        this.getAttribute('cta-text') !== null
+    ) {
+      const ctaText = document.createElement('p');
+        ctaText.setAttribute('id', 'cta-text')
+        ctaText.innerText = this.getAttribute('cta-text') as string
+        // find the slot and add the supportText after the slot
+        const slot = shadowRoot.querySelector('slot') as HTMLSlotElement
+        slot.after(ctaText)
+    }
+
+    // check for support-text attribute and create the support text div if it exists
+    if (
+        this.hasAttribute('support-text') &&
+        this.getAttribute('support-text') !== null
+    ) {
+        const supportText = document.createElement('div')
+        supportText.setAttribute('id', 'support-text')
+        supportText.innerText = this.getAttribute('support-text') as string
+        // find the slot and add the supportText after the slot
+        const slot = shadowRoot.querySelector('slot') as HTMLSlotElement
+        slot.after(supportText)
     }
 }
