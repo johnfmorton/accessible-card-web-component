@@ -16,10 +16,13 @@ export class AccessibleCard extends HTMLElement {
         console.log('connectedCallback')
         const shadowRoot = this.shadowRoot as ShadowRoot
 
-        const rootElementTag = this.getAttribute('root-element') ?? 'li'
+      const rootElementTag = this.getAttribute('root-element') ?? 'li';
 
         // const shadow = this.attachShadow({ mode: 'open' })
-        const rootElement = document.createElement(rootElementTag)
+      const rootElement = document.createElement(rootElementTag);
+      // add .card class to root element
+      rootElement.classList.add('card')
+
         // add the slot to the root element
         rootElement.innerHTML = template
 
@@ -122,9 +125,11 @@ function createRestOfDOM(shadowRoot: ShadowRoot) {
     // check for cta-text attribute and create the cta button if it exists
     if (
         this.hasAttribute('cta-text') &&
-        this.getAttribute('cta-text') !== null
+        this.getAttribute('cta-text') !== null &&
+        this.hasAttribute('cta-url') &&
+        this.getAttribute('cta-url') !== null
     ) {
-      const ctaText = document.createElement('p');
+        const ctaText = document.createElement('p')
         ctaText.setAttribute('id', 'cta-text')
         ctaText.innerText = this.getAttribute('cta-text') as string
         // find the slot and add the supportText after the slot
