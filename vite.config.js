@@ -12,11 +12,11 @@ module.exports = defineConfig({
         lib: {
             entry: path.resolve(
                 __dirname,
-                'lib/vite-module-builder-w-ghpages-npm-template.ts'
+                'lib/accessible-card-web-component.ts'
             ),
-            name: 'vite-module-builder-w-ghpages-npm-template',
+            name: 'accessible-card-web-component',
             fileName: (format) =>
-                `vite-module-builder-w-ghpages-npm-template.${format}.js`,
+                `accessible-card-web-component.${format}.js`,
         },
         minify: false,
     },
