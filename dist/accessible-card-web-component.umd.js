@@ -4,7 +4,7 @@
  * description: This is a templare repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
  * author: John F. Morton <john@johnfmorton.com> (https://supergeekery.com)
  * repository: https://github.com/johnfmorton/accessible-card-web-component
- * build date: 2023-07-03T11:57:56.130Z 
+ * build date: 2023-07-03T12:51:14.279Z 
  */
 (function(global, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global["accessible-card-web-component"] = {}));
@@ -15,52 +15,42 @@
         :host {
             display: block;
             border: 1px solid black;
+            height: 100%;
         }
         #card-image {
             width: 100%;
         }
         .card {
           position: relative;
-            display: flex;
-            flex-direction: column;
-            /* reverse the order of the children */
-            flex-direction: column-reverse;
-            height: 100%;
-            border-radius: 16px;
-            border-width: 0;
-
-            background: #fff;
-            box-sizing: border-box;
-            border: 1px solid rgba(24, 24, 24, 0.04);
-            box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 8px 12px -2px rgba(24, 24, 24, 0.16);
-            top: 0;
-            transition: all 0.2s ease-in-out;
-            outline: 2px solid transparent;
+          display: flex;
+          flex-direction: column;
+          /* reverse the order of the children */
+          flex-direction: column-reverse;
+          height: 100%;
+          border-radius: 16px;
+          border-width: 0;
+          background: #fff;
+          box-sizing: border-box;
+          border: 1px solid rgba(24, 24, 24, 0.04);
+          top: 0;
         }
 
         .card a {
             text-decoration: none;
+            color: inherit;
         }
 
-        #card-title::part(headline) {
-            line-height: 1.25;
+        #card-title{
+          margin:0;
         };
 
-        .card:hover {
-          outline: 4px solid #155daa;
-
-          box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 12px 12px -4px rgba(24, 24, 24, 0.16);
-
-
-        }
 
         .card a:focus {
             text-decoration: underline;
         }
 
         .card:focus-within {
-            outline: 4px solid #155daa;
-
+          outline: 4px solid #155daa;
           box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 12px 12px -4px rgba(24, 24, 24, 0.16);
         }
 
@@ -78,10 +68,9 @@
         }
 
         .card-image-wrapper {
-            border-radius: 16px 16px 0 0;
+
             width: 100%;
-            aspect-ratio: 16/9;
-            overflow: hidden;
+
         }
 
         .card-content-wrapper {
@@ -91,29 +80,22 @@
             justify-content: space-between;
         }
 
-        .card-copy-wrapper {
-            margin: 40px 40px 32px;
+        #card-copy-wrapper {
+            margin: 30px;
         }
 
-        .card-cta-wrapper {
-            margin: 0 40px 48px;
-        }
-
-        .card-shadow {
-          background: #fff;
-            box-sizing: border-box;
-            border: 1px solid rgba(24, 24, 24, 0.04);
-            box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 8px 12px -2px rgba(24, 24, 24, 0.16);
+        #card-cta-wrapper {
+            margin: 30px;
         }
 
     </style>
-    <div class="card">
-      <div class='card-content-wrapper'>
-        <div class='card-copy-wrapper'>
+    <div class="card" part='card'>
+      <div class='card-content-wrapper' part='card-content-wrapper'>
+        <div id='card-copy-wrapper' part='card-copy-wrapper'>
           <slot></slot>
         </div>
       </div>
-      <div class='card-image-wrapper'>
+      <div class='card-image-wrapper' part='image-wrapper'>
           <img id='card-image' />
       </div>
     </div>
@@ -141,6 +123,7 @@
           console.log("titleTagType", titleTagType);
           const title = document.createElement(titleTagType);
           title.setAttribute("id", "card-title");
+          title.setAttribute("part", "headline");
           let titleLink;
           if (this.hasAttribute("cta-url") && this.getAttribute("cta-url") !== null) {
             titleLink = document.createElement("a");
@@ -172,6 +155,7 @@
     if (this.hasAttribute("img-scr") && this.getAttribute("img-scr") !== null) {
       const img = shadowRoot.querySelector("#card-image");
       img.setAttribute("src", this.getAttribute("img-scr"));
+      img.setAttribute("part", "image");
       if (this.hasAttribute("img-alt") && this.getAttribute("img-alt") !== null) {
         img.setAttribute("alt", this.getAttribute("img-alt"));
       } else {
@@ -184,16 +168,24 @@
       parent.remove();
     }
     if (this.hasAttribute("cta-text") && this.getAttribute("cta-text") !== null && this.hasAttribute("cta-url") && this.getAttribute("cta-url") !== null) {
+      const ctaWrapper = document.createElement("div");
+      ctaWrapper.setAttribute("id", "card-cta-wrapper");
+      ctaWrapper.setAttribute("part", "card-cta-wrapper");
       const ctaText = document.createElement("p");
+      ctaText.setAttribute("part", "cta");
       ctaText.setAttribute("id", "cta-text");
       ctaText.innerText = this.getAttribute("cta-text");
       ctaText.setAttribute("aria-hidden", "true");
-      const slot = shadowRoot.querySelector("slot");
-      slot.after(ctaText);
+      const slot = shadowRoot.querySelector(
+        "#card-copy-wrapper"
+      );
+      ctaWrapper.appendChild(ctaText);
+      slot.after(ctaWrapper);
     }
     if (this.hasAttribute("support-text") && this.getAttribute("support-text") !== null) {
       const supportText = document.createElement("div");
       supportText.setAttribute("id", "support-text");
+      supportText.setAttribute("part", "support-text");
       supportText.innerText = this.getAttribute("support-text");
       const slot = shadowRoot.querySelector("slot");
       slot.after(supportText);

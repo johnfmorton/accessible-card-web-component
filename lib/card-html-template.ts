@@ -26,10 +26,11 @@ export const template = `
 
         .card a {
             text-decoration: none;
+            color: inherit;
         }
 
         #card-title{
-
+          margin:0;
         };
 
 
@@ -69,18 +70,11 @@ export const template = `
         }
 
         #card-copy-wrapper {
-            margin: 40px 40px 32px;
+            margin: 30px;
         }
 
         #card-cta-wrapper {
-            margin: 0 40px 48px;
-        }
-
-        .card-shadow {
-          background: #fff;
-            box-sizing: border-box;
-            border: 1px solid rgba(24, 24, 24, 0.04);
-            box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 8px 12px -2px rgba(24, 24, 24, 0.16);
+            margin: 30px;
         }
 
     </style>
