@@ -4,12 +4,18 @@
  * description: This is a templare repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
  * author: John F. Morton <john@johnfmorton.com> (https://supergeekery.com)
  * repository: https://github.com/johnfmorton/accessible-card-web-component
- * build date: 2023-07-03T12:51:14.279Z 
+ * build date: 2023-07-03T13:59:08.140Z 
  */
 (function(global, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global["accessible-card-web-component"] = {}));
 })(this, function(exports2) {
-  "use strict";
+  "use strict";var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+
   const template = `
     <style>
         :host {
@@ -100,10 +106,13 @@
       </div>
     </div>
 `;
-  class AccessibleCard extends HTMLElement {
+  const _AccessibleCard = class extends HTMLElement {
     constructor() {
-      console.log("constructor");
       super();
+      __publicField(this, "uniqueId");
+      _AccessibleCard.counter += 1;
+      this.uniqueId = `card-${_AccessibleCard.counter}`;
+      console.log("constructor");
       this.attachShadow({ mode: "open" });
     }
     connectedCallback() {
@@ -131,6 +140,12 @@
               "href",
               this.getAttribute("cta-url")
             );
+            if (this.hasAttribute("cta-text") && this.getAttribute("cta-text") !== null) {
+              titleLink.setAttribute(
+                "aria-describedby",
+                "cta-text-" + this.uniqueId
+              );
+            }
             assignedNodes.forEach((node) => {
               titleLink.appendChild(node);
             });
@@ -150,7 +165,9 @@
     disconnectedCallback() {
       console.log("disconnectedCallback");
     }
-  }
+  };
+  let AccessibleCard = _AccessibleCard;
+  __publicField(AccessibleCard, "counter", 0);
   function createRestOfDOM(shadowRoot) {
     if (this.hasAttribute("img-scr") && this.getAttribute("img-scr") !== null) {
       const img = shadowRoot.querySelector("#card-image");
@@ -173,7 +190,7 @@
       ctaWrapper.setAttribute("part", "card-cta-wrapper");
       const ctaText = document.createElement("p");
       ctaText.setAttribute("part", "cta");
-      ctaText.setAttribute("id", "cta-text");
+      ctaText.setAttribute("id", "cta-text-" + this.uniqueId);
       ctaText.innerText = this.getAttribute("cta-text");
       ctaText.setAttribute("aria-hidden", "true");
       const slot = shadowRoot.querySelector(

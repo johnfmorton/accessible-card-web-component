@@ -14,6 +14,30 @@ accessible-card::part(card) {
   outline: 2px solid transparent;
 }
 
+accessible-card::part(card) a {
+  text-decoration: none;
+}
+
+accessible-card::part(card):focus {
+  text-decoration: underline;
+}
+accessible-card::part(card):focus-within {
+  outline: 4px solid #155daa;
+  box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 12px 12px -4px rgba(24, 24, 24, 0.16);
+}
+
+accessible-card::part(card):focus-within *:focus-visible {
+  text-decoration: none;
+  outline: none;
+  border: none;
+}
+
+accessible-card::part(card):focus-within a:focus {
+    text-decoration: none;
+    outline: none;
+    border: none;
+}
+
 accessible-card::part(card):hover {
   outline: 4px solid #155daa;
   box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 12px 12px -4px rgba(24, 24, 24, 0.16);

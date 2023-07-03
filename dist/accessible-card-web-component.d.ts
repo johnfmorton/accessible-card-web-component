@@ -3,6 +3,8 @@ declare module "card-html-template" {
 }
 declare module "accessible-card-web-component" {
     export class AccessibleCard extends HTMLElement {
+        static counter: number;
+        uniqueId: string;
         constructor();
         connectedCallback(): void;
         disconnectedCallback(): void;

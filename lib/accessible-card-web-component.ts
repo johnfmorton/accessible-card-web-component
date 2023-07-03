@@ -6,16 +6,21 @@
 import { template } from './card-html-template'
 
 export class AccessibleCard extends HTMLElement {
+    static counter = 0
+    uniqueId: string
+
     constructor() {
-        console.log('constructor')
-        super()
-        this.attachShadow({ mode: 'open' })
+      super()
+      AccessibleCard.counter += 1;
+      this.uniqueId = `card-${AccessibleCard.counter}`;
+      console.log('constructor')
+      this.attachShadow({ mode: 'open' })
     }
 
     connectedCallback() {
         console.log('connectedCallback')
         const shadowRoot = this.shadowRoot as ShadowRoot
-        shadowRoot.innerHTML = template;
+        shadowRoot.innerHTML = template
 
         // check for default slot content using the slotchange event
         shadowRoot.querySelector('slot')?.addEventListener('slotchange', () => {
@@ -39,35 +44,47 @@ export class AccessibleCard extends HTMLElement {
                 }
                 console.log('titleTagType', titleTagType)
 
-              const title = document.createElement(titleTagType as string);
-              title.setAttribute('id', 'card-title')
-              // add part = headline to the title element
-              title.setAttribute('part', 'headline')
+                const title = document.createElement(titleTagType as string)
+                title.setAttribute('id', 'card-title')
+                // add part = headline to the title element
+                title.setAttribute('part', 'headline')
 
-              let titleLink;
+                let titleLink
                 // check if the cta-url attribute is set
-              if (
-                this.hasAttribute('cta-url') &&
-                this.getAttribute('cta-url') !== null
-              ) {
-                  // create the link element
-                  titleLink = document.createElement('a')
-                  titleLink.setAttribute(
-                      'href',
-                      this.getAttribute('cta-url') as string
-                  )
-                  // insert all the assignedNodes into the title element
-                  assignedNodes.forEach((node) => {
-                      titleLink.appendChild(node)
-                  })
-                  // insert the titleLink into the title element
-                  title.appendChild(titleLink)
-              } else {
-                  // insert all the assignedNodes into the title element
-                  assignedNodes.forEach((node) => {
-                      title.appendChild(node)
-                  })
-              }
+                if (
+                    this.hasAttribute('cta-url') &&
+                    this.getAttribute('cta-url') !== null
+                ) {
+                    // create the link element
+                    titleLink = document.createElement('a')
+                    titleLink.setAttribute(
+                        'href',
+                        this.getAttribute('cta-url') as string
+                    )
+                      // if the cta is set, add the 'aria-describedby' attribute
+                    // to the cta-text element using its uniqueId
+                  if (
+                    this.hasAttribute('cta-text') &&
+                    this.getAttribute('cta-text') !== null
+                  ) {
+                    titleLink.setAttribute(
+                      'aria-describedby',
+                      'cta-text-' + this.uniqueId
+                    )
+                  }
+
+                    // insert all the assignedNodes into the title element
+                    assignedNodes.forEach((node) => {
+                        titleLink.appendChild(node)
+                    })
+                    // insert the titleLink into the title element
+                    title.appendChild(titleLink)
+                } else {
+                    // insert all the assignedNodes into the title element
+                    assignedNodes.forEach((node) => {
+                        title.appendChild(node)
+                    })
+                }
 
                 console.log('title element', title)
                 // remove the default slot content
@@ -123,23 +140,25 @@ function createRestOfDOM(shadowRoot: ShadowRoot) {
         this.hasAttribute('cta-url') &&
         this.getAttribute('cta-url') !== null
     ) {
-      const ctaWrapper = document.createElement('div');
-      ctaWrapper.setAttribute('id', 'card-cta-wrapper');
-      // add part = card-cta-wrapper
-      ctaWrapper.setAttribute('part', 'card-cta-wrapper');
-      const ctaText = document.createElement('p');
+        const ctaWrapper = document.createElement('div')
+        ctaWrapper.setAttribute('id', 'card-cta-wrapper')
+        // add part = card-cta-wrapper
+        ctaWrapper.setAttribute('part', 'card-cta-wrapper')
+        const ctaText = document.createElement('p')
+
         // add part = cta
         ctaText.setAttribute('part', 'cta')
-        ctaText.setAttribute('id', 'cta-text')
+        // add id to ctaText using uniqueId
+        ctaText.setAttribute('id', 'cta-text-' + this.uniqueId)
         ctaText.innerText = this.getAttribute('cta-text') as string
         // aria-hidden="true"
-        ctaText.setAttribute('aria-hidden', 'true');
+        ctaText.setAttribute('aria-hidden', 'true')
         // find the slot and add the supportText after the slot
-      const slot = shadowRoot.querySelector(
-          '#card-copy-wrapper'
-      ) as HTMLElement
+        const slot = shadowRoot.querySelector(
+            '#card-copy-wrapper'
+        ) as HTMLElement
 
-      ctaWrapper.appendChild(ctaText);
+        ctaWrapper.appendChild(ctaText)
         slot.after(ctaWrapper)
     }
 
