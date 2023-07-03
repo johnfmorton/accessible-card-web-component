@@ -4,6 +4,7 @@
 import { AccessibleCard } from '../lib/accessible-card-web-component'
 
 customElements.define('accessible-card', AccessibleCard)
+// customElements.define('accessible-card', AccessibleCard, { extends: 'li' })
 
 import './style.pcss';
 

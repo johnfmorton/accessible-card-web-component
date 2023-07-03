@@ -132,6 +132,8 @@ function createRestOfDOM(shadowRoot: ShadowRoot) {
         const ctaText = document.createElement('p')
         ctaText.setAttribute('id', 'cta-text')
         ctaText.innerText = this.getAttribute('cta-text') as string
+        // aria-hidden="true"
+      ctaText.setAttribute('aria-hidden', 'true');
         // find the slot and add the supportText after the slot
         const slot = shadowRoot.querySelector('slot') as HTMLSlotElement
         slot.after(ctaText)
