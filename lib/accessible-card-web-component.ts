@@ -15,18 +15,7 @@ export class AccessibleCard extends HTMLElement {
     connectedCallback() {
         console.log('connectedCallback')
         const shadowRoot = this.shadowRoot as ShadowRoot
-
-      const rootElementTag = this.getAttribute('root-element') ?? 'li';
-
-        // const shadow = this.attachShadow({ mode: 'open' })
-      const rootElement = document.createElement(rootElementTag);
-      // add .card class to root element
-      rootElement.classList.add('card')
-
-        // add the slot to the root element
-        rootElement.innerHTML = template
-
-        shadowRoot.appendChild(rootElement)
+        shadowRoot.innerHTML = template;
 
         // check for default slot content using the slotchange event
         shadowRoot.querySelector('slot')?.addEventListener('slotchange', () => {

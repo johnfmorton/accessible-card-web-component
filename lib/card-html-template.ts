@@ -95,12 +95,14 @@ export const template = `
         }
 
     </style>
-    <div class='card-content-wrapper'>
-    <div class='card-copy-wrapper'>
-        <slot></slot>
+    <div class="card">
+      <div class='card-content-wrapper'>
+        <div class='card-copy-wrapper'>
+          <slot></slot>
         </div>
-    </div>
-    <div class='card-image-wrapper'>
-        <img id='card-image' />
+      </div>
+      <div class='card-image-wrapper'>
+          <img id='card-image' />
+      </div>
     </div>
 `
