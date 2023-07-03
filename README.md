@@ -98,3 +98,17 @@ The other imporatnt page is the `index.html` file. This is the demo page for you
 You can see the demo page for this repo at:
 
 https://johnfmorton.github.io/accessible-card-web-component/
+
+
+## Style Guide
+
+The component has several ::part selectors that can be used to style the component. The following is a list of the selectors.
+
+1. `::part(card)` - The overall card element. This is the container for the component.
+2. `::part(card-content-wrapper)` - A wrapper around all the text content of the card.
+3. `::part(card-copy-wrapper)` - A wrapper around the headline and sub-head of the card.
+4. `::part(headline)` - The headline on the card.
+5. `::part(support-text)` - The support text (i.e. the subhead) on the card.
+6. `::part(cta)` - The cta line on the card.
+7. `::part(image)` - The image of the card.
+8. `::part(image-wrapper)` - The div that wraps around the image of the card.
