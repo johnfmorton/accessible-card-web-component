@@ -4,7 +4,7 @@
  * description: This is a templare repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
  * author: John F. Morton <john@johnfmorton.com> (https://supergeekery.com)
  * repository: https://github.com/johnfmorton/accessible-card-web-component
- * build date: 2023-07-05T13:36:55.910Z 
+ * build date: 2023-07-14T17:36:51.416Z 
  */
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -36,7 +36,6 @@ const _AccessibleCard = class extends HTMLElement {
         if (this.hasAttribute("title-tag-type") && this.getAttribute("title-tag-type") !== null) {
           titleTagType = this.getAttribute("title-tag-type");
         }
-        console.log("titleTagType", titleTagType);
         const title = document.createElement(titleTagType);
         title.setAttribute("id", "card-title");
         title.setAttribute("part", "headline");
@@ -47,6 +46,12 @@ const _AccessibleCard = class extends HTMLElement {
             "href",
             this.getAttribute("cta-url")
           );
+          const currentDomain = window.location.hostname;
+          const ctaUrl = this.getAttribute("cta-url");
+          const ctaUrlDomain = ctaUrl.split("/")[2];
+          if (ctaUrlDomain !== currentDomain) {
+            titleLink.setAttribute("target", "_blank");
+          }
           if (this.hasAttribute("cta-text") && this.getAttribute("cta-text") !== null) {
             titleLink.setAttribute(
               "aria-describedby",

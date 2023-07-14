@@ -42,7 +42,7 @@ export class AccessibleCard extends HTMLElement {
                     // get the title element
                     titleTagType = this.getAttribute('title-tag-type') as string
                 }
-                console.log('titleTagType', titleTagType)
+                // console.log('titleTagType', titleTagType)
 
                 const title = document.createElement(titleTagType as string)
                 title.setAttribute('id', 'card-title')
@@ -61,6 +61,19 @@ export class AccessibleCard extends HTMLElement {
                         'href',
                         this.getAttribute('cta-url') as string
                     )
+
+                  // check if the titleLink is the same domain as the current domain
+                  // if it is a new domain, add the target="_blank" attribute
+                  const currentDomain = window.location.hostname
+                  const ctaUrl = this.getAttribute('cta-url') as string
+                  const ctaUrlDomain = ctaUrl.split('/')[2];
+
+                  // console.log('currentDomain', currentDomain)
+                  // console.log('ctaUrlDomain', ctaUrlDomain)
+                  if (ctaUrlDomain !== currentDomain) {
+                    titleLink.setAttribute('target', '_blank')
+                  }
+
                       // if the cta is set, add the 'aria-describedby' attribute
                     // to the cta-text element using its uniqueId
                   if (
