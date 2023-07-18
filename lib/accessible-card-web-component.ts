@@ -53,7 +53,8 @@ export class AccessibleCard extends HTMLElement {
                 // check if the cta-url attribute is set
                 if (
                     this.hasAttribute('cta-url') &&
-                    this.getAttribute('cta-url') !== null
+                  this.getAttribute('cta-url') !== null &&
+                  this.getAttribute('cta-url') !== ''
                 ) {
                     // create the link element
                     titleLink = document.createElement('a')
