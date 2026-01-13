@@ -1,7 +1,7 @@
 {
     "name": "accessible-card-web-component",
     "version": "1.0.0",
-    "description": "This is a templare repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.",
+    "description": "This is a template repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.",
     "files": [
         "dist"
     ],
@@ -23,7 +23,7 @@
         "clean": "rm -rf dist es demo",
         "dev": "vite --host 0.0.0.0 --port 8888",
         "vite-build": "vite build --config vite.demo.config.js",
-        "build": "vite build --config vite.demo.config.js && vite build && tsc lib/accessible-card-web-component.ts --declaration --emitDeclarationOnly --outFile dist/accessible-card-web-component.d.ts",
+        "build": "vite build --config vite.demo.config.js && vite build && tsc lib/accessible-card-web-component.ts --declaration --emitDeclarationOnly --outFile dist/accessible-card-web-component.d.ts --lib ESNext,DOM",
         "preview": "vite preview",
         "project-setup": "node project-setup.js && npm install",
         "test": "echo \"Error: no test specified\" && exit 1"

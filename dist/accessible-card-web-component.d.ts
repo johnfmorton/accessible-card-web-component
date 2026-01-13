@@ -5,6 +5,7 @@ declare module "accessible-card-web-component" {
     export class AccessibleCard extends HTMLElement {
         static counter: number;
         uniqueId: string;
+        private slotChangeHandler;
         constructor();
         connectedCallback(): void;
         disconnectedCallback(): void;
