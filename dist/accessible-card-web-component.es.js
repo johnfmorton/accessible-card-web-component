@@ -1,10 +1,10 @@
 /**
  * name: accessible-card-web-component
- * version: v1.0.0
+ * version: v1.1.0
  * description: This is a template repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
  * author: John F. Morton <john@johnfmorton.com> (https://supergeekery.com)
  * repository: https://github.com/johnfmorton/accessible-card-web-component
- * build date: 2026-01-13T19:22:41.371Z 
+ * build date: 2026-01-13T19:25:34.548Z 
  */
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
