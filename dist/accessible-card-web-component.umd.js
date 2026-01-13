@@ -1,10 +1,10 @@
 /**
  * name: accessible-card-web-component
- * version: v1.0.0
- * description: This is a templare repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
+ * version: v1.1.0
+ * description: This is a template repo that will create a Vite workflow to ease creation of Javascript modules with a dev server, GitHub Pages support and automated publishing to NPM.
  * author: John F. Morton <john@johnfmorton.com> (https://supergeekery.com)
  * repository: https://github.com/johnfmorton/accessible-card-web-component
- * build date: 2023-07-14T17:36:51.416Z 
+ * build date: 2026-01-13T19:25:34.548Z 
  */
 (function(global, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global["accessible-card-web-component"] = {}));
@@ -17,34 +17,36 @@ var __publicField = (obj, key, value) => {
 };
 
   const template = `<style>:host{display: block; border: 1px solid black; height: 100%;}div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, a, em, img, strong, b, u, i, center, dl, dt, dd, ol, ul, li, figure, figcaption, footer, header, hgroup, menu, nav, section, summary, time{margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline;}#card-image{width: 100%;}.card{position: relative; display: flex; flex-direction: column; /* reverse the order of the children */ flex-direction: column-reverse; height: 100%; border-radius: 16px; border-width: 0; background: #fff; box-sizing: border-box; border: 1px solid rgba(24, 24, 24, 0.04); top: 0;}.card a{text-decoration: none; color: inherit;}#card-title{margin:0;}; .card a:focus{text-decoration: underline;}.card:focus-within{outline: 4px solid #155daa; box-shadow: 0 2px 8px -2px rgba(24, 24, 24, 0.08), 0 12px 12px -4px rgba(24, 24, 24, 0.16);}.card:focus-within a:focus{text-decoration: none;}.card a::after{content: ''; position: absolute; left: 0; top: 0; right: 0; bottom: 0;}.card-image-wrapper{width: 100%;}.card-content-wrapper{display: flex; flex-grow: 1; flex-direction: column; justify-content: space-between;}#card-copy-wrapper{margin: 30px;}#card-cta-wrapper{margin: 30px;}</style><div class="card" part='card'><div class='card-content-wrapper' part='card-content-wrapper'><div id='card-copy-wrapper' part='card-copy-wrapper'><slot></slot></div></div><div class='card-image-wrapper' part='image-wrapper'><img id='card-image'/></div></div>`;
+  const VALID_HEADING_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6"];
   const _AccessibleCard = class extends HTMLElement {
     constructor() {
       super();
       __publicField(this, "uniqueId");
+      __publicField(this, "slotChangeHandler", null);
       _AccessibleCard.counter += 1;
       this.uniqueId = `card-${_AccessibleCard.counter}`;
-      console.log("constructor");
       this.attachShadow({ mode: "open" });
     }
     connectedCallback() {
       var _a;
-      console.log("connectedCallback");
       const shadowRoot = this.shadowRoot;
       shadowRoot.innerHTML = template;
-      (_a = shadowRoot.querySelector("slot")) == null ? void 0 : _a.addEventListener("slotchange", () => {
-        console.log("slotchange");
+      this.slotChangeHandler = () => {
         const slot = shadowRoot.querySelector("slot");
         const assignedNodes = slot.assignedNodes();
         if (assignedNodes.length > 0) {
           let titleTagType = "h2";
           if (this.hasAttribute("title-tag-type") && this.getAttribute("title-tag-type") !== null) {
-            titleTagType = this.getAttribute("title-tag-type");
+            const requestedTag = this.getAttribute("title-tag-type");
+            if (VALID_HEADING_TAGS.includes(requestedTag.toLowerCase())) {
+              titleTagType = requestedTag.toLowerCase();
+            }
           }
           const title = document.createElement(titleTagType);
           title.setAttribute("id", "card-title");
           title.setAttribute("part", "headline");
           let titleLink;
-          if (this.hasAttribute("cta-url") && this.getAttribute("cta-url") !== null) {
+          if (this.hasAttribute("cta-url") && this.getAttribute("cta-url") !== null && this.getAttribute("cta-url") !== "") {
             titleLink = document.createElement("a");
             titleLink.setAttribute(
               "href",
@@ -52,9 +54,13 @@ var __publicField = (obj, key, value) => {
             );
             const currentDomain = window.location.hostname;
             const ctaUrl = this.getAttribute("cta-url");
-            const ctaUrlDomain = ctaUrl.split("/")[2];
-            if (ctaUrlDomain !== currentDomain) {
-              titleLink.setAttribute("target", "_blank");
+            try {
+              const ctaUrlDomain = new URL(ctaUrl).hostname;
+              if (ctaUrlDomain !== currentDomain) {
+                titleLink.setAttribute("target", "_blank");
+                titleLink.setAttribute("rel", "noopener noreferrer");
+              }
+            } catch {
             }
             if (this.hasAttribute("cta-text") && this.getAttribute("cta-text") !== null) {
               titleLink.setAttribute(
@@ -71,23 +77,29 @@ var __publicField = (obj, key, value) => {
               title.appendChild(node);
             });
           }
-          console.log("title element", title);
           slot.innerHTML = "";
           slot.appendChild(title);
         }
-      });
+      };
+      (_a = shadowRoot.querySelector("slot")) == null ? void 0 : _a.addEventListener("slotchange", this.slotChangeHandler);
       createRestOfDOM.call(this, shadowRoot);
     }
     disconnectedCallback() {
-      console.log("disconnectedCallback");
+      var _a;
+      if (this.slotChangeHandler) {
+        const shadowRoot = this.shadowRoot;
+        (_a = shadowRoot.querySelector("slot")) == null ? void 0 : _a.removeEventListener("slotchange", this.slotChangeHandler);
+        this.slotChangeHandler = null;
+      }
     }
   };
   let AccessibleCard = _AccessibleCard;
   __publicField(AccessibleCard, "counter", 0);
   function createRestOfDOM(shadowRoot) {
-    if (this.hasAttribute("img-scr") && this.getAttribute("img-scr") !== null) {
+    const imgSrc = this.getAttribute("img-src") || this.getAttribute("img-scr");
+    if (imgSrc) {
       const img = shadowRoot.querySelector("#card-image");
-      img.setAttribute("src", this.getAttribute("img-scr"));
+      img.setAttribute("src", imgSrc);
       img.setAttribute("part", "image");
       if (this.hasAttribute("img-alt") && this.getAttribute("img-alt") !== null) {
         img.setAttribute("alt", this.getAttribute("img-alt"));
@@ -100,19 +112,21 @@ var __publicField = (obj, key, value) => {
       const parent = img.parentElement;
       parent.remove();
     }
-    if (this.hasAttribute("cta-text") && this.getAttribute("cta-text") !== null && this.hasAttribute("cta-url") && this.getAttribute("cta-url") !== null) {
+    const ctaTextAttr = this.getAttribute("cta-text");
+    const ctaUrlAttr = this.getAttribute("cta-url");
+    if (ctaTextAttr && ctaTextAttr !== "" && ctaUrlAttr && ctaUrlAttr !== "") {
       const ctaWrapper = document.createElement("div");
       ctaWrapper.setAttribute("id", "card-cta-wrapper");
       ctaWrapper.setAttribute("part", "card-cta-wrapper");
-      const ctaText = document.createElement("p");
-      ctaText.setAttribute("part", "cta");
-      ctaText.setAttribute("id", "cta-text-" + this.uniqueId);
-      ctaText.innerText = this.getAttribute("cta-text");
-      ctaText.setAttribute("aria-hidden", "true");
+      const ctaTextEl = document.createElement("p");
+      ctaTextEl.setAttribute("part", "cta");
+      ctaTextEl.setAttribute("id", "cta-text-" + this.uniqueId);
+      ctaTextEl.innerText = ctaTextAttr;
+      ctaTextEl.setAttribute("aria-hidden", "true");
       const slot = shadowRoot.querySelector(
         "#card-copy-wrapper"
       );
-      ctaWrapper.appendChild(ctaText);
+      ctaWrapper.appendChild(ctaTextEl);
       slot.after(ctaWrapper);
     }
     if (this.hasAttribute("support-text") && this.getAttribute("support-text") !== null) {

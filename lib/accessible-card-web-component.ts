@@ -1,30 +1,31 @@
-// do not combile a default export AND named exports in the same file
+// do not combine a default export AND named exports in the same file
 // because consumers of your bundle will have to use `my-bundle.default`
 // to access the default export, which may not be what you want.
 // Use `output.exports: "named"` to disable this warning.
 
 import { template } from './card-html-template'
 
+// Valid heading tag types for title-tag-type attribute
+const VALID_HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+
 export class AccessibleCard extends HTMLElement {
     static counter = 0
     uniqueId: string
+    private slotChangeHandler: (() => void) | null = null
 
     constructor() {
       super()
       AccessibleCard.counter += 1;
       this.uniqueId = `card-${AccessibleCard.counter}`;
-      console.log('constructor')
       this.attachShadow({ mode: 'open' })
     }
 
     connectedCallback() {
-        console.log('connectedCallback')
         const shadowRoot = this.shadowRoot as ShadowRoot
         shadowRoot.innerHTML = template
 
         // check for default slot content using the slotchange event
-        shadowRoot.querySelector('slot')?.addEventListener('slotchange', () => {
-            console.log('slotchange')
+        this.slotChangeHandler = () => {
             const slot = shadowRoot.querySelector('slot') as HTMLSlotElement
             // check to see if there is content in the default slot
 
@@ -33,16 +34,18 @@ export class AccessibleCard extends HTMLElement {
                 // we have content in the default slot
 
                 // check for title-tag-type attribute, otherwise use h2
-                let titleTagType: String = 'h2'
+                let titleTagType: string = 'h2'
                 // now check to see if the title-tag attribute is set
                 if (
                     this.hasAttribute('title-tag-type') &&
                     this.getAttribute('title-tag-type') !== null
                 ) {
-                    // get the title element
-                    titleTagType = this.getAttribute('title-tag-type') as string
+                    const requestedTag = this.getAttribute('title-tag-type') as string
+                    // validate against allowed heading tags
+                    if (VALID_HEADING_TAGS.includes(requestedTag.toLowerCase())) {
+                        titleTagType = requestedTag.toLowerCase()
+                    }
                 }
-                // console.log('titleTagType', titleTagType)
 
                 const title = document.createElement(titleTagType as string)
                 title.setAttribute('id', 'card-title')
@@ -64,15 +67,17 @@ export class AccessibleCard extends HTMLElement {
                     )
 
                   // check if the titleLink is the same domain as the current domain
-                  // if it is a new domain, add the target="_blank" attribute
+                  // if it is a new domain, add the target="_blank" attribute with security attributes
                   const currentDomain = window.location.hostname
                   const ctaUrl = this.getAttribute('cta-url') as string
-                  const ctaUrlDomain = ctaUrl.split('/')[2];
-
-                  // console.log('currentDomain', currentDomain)
-                  // console.log('ctaUrlDomain', ctaUrlDomain)
-                  if (ctaUrlDomain !== currentDomain) {
-                    titleLink.setAttribute('target', '_blank')
+                  try {
+                    const ctaUrlDomain = new URL(ctaUrl).hostname
+                    if (ctaUrlDomain !== currentDomain) {
+                      titleLink.setAttribute('target', '_blank')
+                      titleLink.setAttribute('rel', 'noopener noreferrer')
+                    }
+                  } catch {
+                    // If URL parsing fails (e.g., relative URL), keep link as same-window
                   }
 
                       // if the cta is set, add the 'aria-describedby' attribute
@@ -100,21 +105,25 @@ export class AccessibleCard extends HTMLElement {
                     })
                 }
 
-                console.log('title element', title)
                 // remove the default slot content
                 slot.innerHTML = ''
                 // add the title to the shadowRoot
                 slot.appendChild(title)
             }
 
-            // createRestOfDOM.call(this, shadowRoot)
-        })
+        }
+        shadowRoot.querySelector('slot')?.addEventListener('slotchange', this.slotChangeHandler)
 
         createRestOfDOM.call(this, shadowRoot)
     }
 
     disconnectedCallback() {
-        console.log('disconnectedCallback')
+        // Remove event listener to prevent memory leaks
+        if (this.slotChangeHandler) {
+            const shadowRoot = this.shadowRoot as ShadowRoot
+            shadowRoot.querySelector('slot')?.removeEventListener('slotchange', this.slotChangeHandler)
+            this.slotChangeHandler = null
+        }
     }
 }
 
@@ -123,9 +132,11 @@ export class AccessibleCard extends HTMLElement {
 
 function createRestOfDOM(shadowRoot: ShadowRoot) {
     // check for img-src attribute and create the image
-    if (this.hasAttribute('img-scr') && this.getAttribute('img-scr') !== null) {
+    // Note: supports both 'img-src' (correct) and 'img-scr' (legacy typo) for backwards compatibility
+    const imgSrc = this.getAttribute('img-src') || this.getAttribute('img-scr')
+    if (imgSrc) {
         const img = shadowRoot.querySelector('#card-image') as HTMLImageElement
-        img.setAttribute('src', this.getAttribute('img-scr') as string)
+        img.setAttribute('src', imgSrc)
         // set part = image
         img.setAttribute('part', 'image')
         // confirm that img-alt is not null
@@ -148,31 +159,28 @@ function createRestOfDOM(shadowRoot: ShadowRoot) {
     }
 
     // check for cta-text attribute and create the cta button if it exists
-    if (
-        this.hasAttribute('cta-text') &&
-        this.getAttribute('cta-text') !== null &&
-        this.hasAttribute('cta-url') &&
-        this.getAttribute('cta-url') !== null
-    ) {
+    const ctaTextAttr = this.getAttribute('cta-text')
+    const ctaUrlAttr = this.getAttribute('cta-url')
+    if (ctaTextAttr && ctaTextAttr !== '' && ctaUrlAttr && ctaUrlAttr !== '') {
         const ctaWrapper = document.createElement('div')
         ctaWrapper.setAttribute('id', 'card-cta-wrapper')
         // add part = card-cta-wrapper
         ctaWrapper.setAttribute('part', 'card-cta-wrapper')
-        const ctaText = document.createElement('p')
+        const ctaTextEl = document.createElement('p')
 
         // add part = cta
-        ctaText.setAttribute('part', 'cta')
-        // add id to ctaText using uniqueId
-        ctaText.setAttribute('id', 'cta-text-' + this.uniqueId)
-        ctaText.innerText = this.getAttribute('cta-text') as string
+        ctaTextEl.setAttribute('part', 'cta')
+        // add id to ctaTextEl using uniqueId
+        ctaTextEl.setAttribute('id', 'cta-text-' + this.uniqueId)
+        ctaTextEl.innerText = ctaTextAttr
         // aria-hidden="true"
-        ctaText.setAttribute('aria-hidden', 'true')
+        ctaTextEl.setAttribute('aria-hidden', 'true')
         // find the slot and add the supportText after the slot
         const slot = shadowRoot.querySelector(
             '#card-copy-wrapper'
         ) as HTMLElement
 
-        ctaWrapper.appendChild(ctaText)
+        ctaWrapper.appendChild(ctaTextEl)
         slot.after(ctaWrapper)
     }
 
